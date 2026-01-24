@@ -77,7 +77,7 @@ class Database:
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS skills_details (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-                name TEXT PRIMARY KEY,
+                name TEXT UNIQUE NOT NULL,
                 summary TEXT NOT NULL,
                 description TEXT,
                 use_case TEXT,
