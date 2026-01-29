@@ -306,6 +306,15 @@ RESEND_FROM_EMAIL = os.getenv("RESEND_FROM_EMAIL", "onboarding@resend.dev")
 EMAIL_TO = os.getenv("EMAIL_TO")
 
 # ============================================================================
+# 邮件通知配置（支持腾讯邮箱等）
+# ============================================================================
+# 腾讯邮箱 SMTP 配置示例
+SMTP_HOST = os.getenv("SMTP_HOST", "smtp.qq.com")
+SMTP_PORT = os.getenv("SMTP_PORT", "587")
+SMTP_USER = os.getenv("SMTP_USER")
+SMTP_PASSWORD=os.getenv("SMTP_PASSWORD")
+
+# ============================================================================
 # 数据库配置
 # ============================================================================
 DB_PATH = os.getenv("DB_PATH", "data/trends.db")

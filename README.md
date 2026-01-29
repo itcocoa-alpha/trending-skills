@@ -171,14 +171,40 @@ python src/main_trending.py
 |-----|------|------|--------|
 | `ZHIPU_API_KEY` | Yes | Claude API Key（智谱代理） | - |
 | `ANTHROPIC_BASE_URL` | No | Claude API 地址 | `https://open.bigmodel.cn/api/anthropic` |
-| `RESEND_API_KEY` | Yes | Resend API Key | - |
-| `EMAIL_TO` | Yes | 收件人邮箱 | - |
-| `RESEND_FROM_EMAIL` | No | 发件人邮箱 | `onboarding@resend.dev` |
+| `SMTP_HOST` | No | SMTP 服务器地址（如 `smtp.qq.com`） | - |
+| `SMTP_PORT` | No | SMTP 服务器端口 | `587` |
+| `SMTP_USER` | No | SMTP 用户名（邮箱地址） | - |
+| `SMTP_PASSWORD` | No | SMTP 密码（授权码） | - |
+| `RESEND_API_KEY` | No | Resend API Key（SMTP 配置优先） | - |
+| `EMAIL_TO` | Yes | 收件人邮箱（支持逗号分隔多个） | - |
+| `RESEND_FROM_EMAIL` | No | Resend 发件人邮箱 | `onboarding@resend.dev` |
 | `DB_PATH` | No | 数据库路径 | `data/trends.db` |
 | `DB_RETENTION_DAYS` | No | 数据保留天数 | `30` |
 | `SURGE_THRESHOLD` | No | 暴涨阈值（比例） | `0.3` |
 
-### Resend 配置
+### 邮件配置
+
+#### 选项 1: 腾讯邮箱（推荐）
+
+1. **获取腾讯邮箱授权码**
+   - 登录腾讯邮箱网页版
+   - 进入「设置」→「账户」
+   - 找到「POP3/IMAP/SMTP/Exchange/CardDAV/CalDAV服务」
+   - 开启「SMTP服务」
+   - 点击「生成授权码」
+   - 按照提示发送短信验证
+   - 复制生成的授权码
+
+2. **配置环境变量**
+   ```bash
+   SMTP_HOST=smtp.qq.com
+   SMTP_PORT=587
+   SMTP_USER=your_qq_email@qq.com
+   SMTP_PASSWORD=your_qq_authorization_code
+   EMAIL_TO=recipient1@email.com, recipient2@email.com
+   ```
+
+#### 选项 2: Resend
 
 1. 注册 [Resend](https://resend.com)
 2. 创建 API Key

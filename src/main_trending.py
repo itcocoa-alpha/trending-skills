@@ -18,7 +18,11 @@ from src.config import (
     RESEND_FROM_EMAIL,
     DB_PATH,
     DB_RETENTION_DAYS,
-    TOP_N_DETAILS
+    TOP_N_DETAILS,
+    SMTP_HOST,
+    SMTP_PORT,
+    SMTP_USER,
+    SMTP_PASSWORD
 )
 from src.skills_fetcher import SkillsFetcher
 from src.detail_fetcher import DetailFetcher
@@ -27,6 +31,7 @@ from src.database import Database
 from src.trend_analyzer import TrendAnalyzer
 from src.html_reporter import HTMLReporter
 from src.resend_sender import ResendSender
+from src.smtp_sender import SMTPSender
 
 
 def print_banner():
@@ -59,9 +64,14 @@ def main():
         print("   请设置 Claude API 的 Key")
         sys.exit(1)
 
-    if not RESEND_API_KEY:
-        print("❌ 错误: RESEND_API_KEY 环境变量未设置")
-        print("   请设置 Resend API Key")
+    # 检查邮件配置（二选一）
+    has_smtp_config = SMTP_HOST and SMTP_PORT and SMTP_USER and SMTP_PASSWORD
+    has_resend_config = RESEND_API_KEY
+    
+    if not has_smtp_config and not has_resend_config:
+        print("❌ 错误: 请至少设置一种邮件发送方式")
+        print("   选项 1: 设置 SMTP 配置（如腾讯邮箱）")
+        print("   选项 2: 设置 RESEND_API_KEY")
         sys.exit(1)
 
     if not EMAIL_TO:
@@ -129,18 +139,42 @@ def main():
 
         # 7. 发送邮件
         print(f"[步骤 7/7] 发送邮件...")
-        sender = ResendSender(RESEND_API_KEY)
-        result = sender.send_email(
-            to=EMAIL_TO,
-            subject=f"📊 Skills Trending Daily - {today}",
-            html_content=html_content,
-            from_email=RESEND_FROM_EMAIL
-        )
-
-        if result["success"]:
-            print(f"   ✅ 邮件发送成功! ID: {result['id']}")
+        
+        # 优先使用 SMTP（如腾讯邮箱）
+        if SMTP_HOST and SMTP_PORT and SMTP_USER and SMTP_PASSWORD:
+            print("   使用 SMTP 发送邮件...")
+            sender = SMTPSender(SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASSWORD)
+            from_email = SMTP_USER  # 使用 SMTP 用户名作为发件人
+            result = sender.send_email(
+                to=EMAIL_TO,
+                subject=f"📊 Skills Trending Daily - {today}",
+                html_content=html_content,
+                from_email=from_email
+            )
+            
+            if result["success"]:
+                print(f"   ✅ 邮件发送成功!")
+            else:
+                print(f"   ❌ 邮件发送失败: {result['message']}")
         else:
-            print(f"   ❌ 邮件发送失败: {result['message']}")
+            # 回退到 Resend
+            print("   使用 Resend 发送邮件...")
+            if not RESEND_API_KEY:
+                print("   ❌ 错误: RESEND_API_KEY 环境变量未设置")
+                print("   请设置 Resend API Key 或 SMTP 配置")
+            else:
+                sender = ResendSender(RESEND_API_KEY)
+                result = sender.send_email(
+                    to=EMAIL_TO,
+                    subject=f"📊 Skills Trending Daily - {today}",
+                    html_content=html_content,
+                    from_email=RESEND_FROM_EMAIL
+                )
+
+                if result["success"]:
+                    print(f"   ✅ 邮件发送成功! ID: {result['id']}")
+                else:
+                    print(f"   ❌ 邮件发送失败: {result['message']}")
         print()
 
         # 8. 清理过期数据
