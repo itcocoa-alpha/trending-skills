@@ -8,7 +8,7 @@ import os
 # ============================================================================
 ANTHROPIC_BASE_URL = os.getenv(
     "ANTHROPIC_BASE_URL",
-    "https://open.bigmodel.cn/api/anthropic"
+    "https://open.bigmodel.cn/api/paas/v4/"
 )
 ZHIPU_API_KEY = os.getenv("ZHIPU_API_KEY")
 
