@@ -10,7 +10,13 @@ ANTHROPIC_BASE_URL = os.getenv(
     "ANTHROPIC_BASE_URL",
     "https://open.bigmodel.cn/api/paas/v4/"
 )
+
 ZHIPU_API_KEY = os.getenv("ZHIPU_API_KEY")
+
+# --- 添加下面的调试代码 ---
+print(f"[DEBUG] 读取到的 ANTHROPIC_BASE_URL: '{ANTHROPIC_BASE_URL}'")
+print(f"[DEBUG] 读取到的 ZHIPU_API_KEY 长度: {len(ZHIPU_API_KEY) if ZHIPU_API_KEY else 'None'}")
+# ---------------------------
 
 # Claude 模型配置
 # CLAUDE_MODEL = os.getenv("CLAUDE_MODEL", "claude-3-5-sonnet-20241022")
