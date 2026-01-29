@@ -1,7 +1,5 @@
 # AI Daily 依赖清单
-
-# Claude API SDK
-anthropic>=0.40.0
+zhipuai>=2.1.5.20250825
 
 # RSS 解析
 feedparser>=6.0.10

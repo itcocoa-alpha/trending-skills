@@ -7,7 +7,7 @@ from typing import Dict, List, Optional
 from bs4 import BeautifulSoup
 import requests
 
-from src.config import FETCH_REQUEST_DELAY, SKILLS_BASE_URL
+from src.config import FETCH_REQUEST_DELAY, SKILLS_BASE_URL, TOP_N_DETAILS
 
 
 class DetailFetcher:
@@ -54,7 +54,7 @@ class DetailFetcher:
             ]
         """
         results = []
-        top_n = min(20, len(skills))
+        top_n = min(TOP_N_DETAILS, len(skills))
 
         print(f"📥 开始抓取 Top {top_n} 详情...")
 

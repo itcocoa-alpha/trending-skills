@@ -3,10 +3,8 @@ Claude Summarizer - AI 总结和分类技能
 使用 Claude API 对技能进行分析、总结和分类
 """
 import json
-import os
 from typing import Dict, List, Optional
-from anthropic import Anthropic
-from openai import OpenAI  # 替换 anthropic 导入
+from zhipuai import ZhipuAI
 
 from src.config import ZHIPU_API_KEY, ANTHROPIC_BASE_URL, CLAUDE_MODEL, CLAUDE_MAX_TOKENS
 
@@ -51,7 +49,7 @@ class ClaudeSummarizer:
             raise ValueError("ZHIPU_API_KEY 环境变量未设置")
 
         try:
-            self.client = OpenAI(
+            self.client = ZhipuAI(
                 base_url=self.base_url,
                 api_key=self.api_key
             )
@@ -83,13 +81,13 @@ class ClaudeSummarizer:
         if not details:
             return []
 
-        print(f"🤖 正在调用 Claude 分析 {len(details)} 个技能...")
+        print(f"🤖 正在调用 智谱 分析 {len(details)} 个技能...")
 
         # 构建批量分析 Prompt
         prompt = self._build_batch_prompt(details)
 
         try:
-            response = self.client.messages.create(
+            response = self.client.chat.completions.create(
                 model=self.model,
                 max_tokens=self.max_tokens,
                 temperature=0.3,
@@ -101,8 +99,8 @@ class ClaudeSummarizer:
                 ]
             )
 
-            result_text = response.content[0].text
-            print(f"✅ Claude 响应成功")
+            result_text = response.choices[0].message.content
+            print(f"✅ 智谱 响应成功")
 
             # 解析结果
             results = self._parse_batch_response(result_text, details)
@@ -110,7 +108,7 @@ class ClaudeSummarizer:
             return results
 
         except Exception as e:
-            print(f"❌ Claude API 调用失败: {e}")
+            print(f"❌ 智谱 API 调用失败: {e}")
             # 返回基本信息作为降级方案
             return self._fallback_summaries(details)
 
