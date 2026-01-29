@@ -13,7 +13,8 @@ ANTHROPIC_BASE_URL = os.getenv(
 ZHIPU_API_KEY = os.getenv("ZHIPU_API_KEY")
 
 # Claude 模型配置
-CLAUDE_MODEL = os.getenv("CLAUDE_MODEL", "claude-3-5-sonnet-20241022")
+# CLAUDE_MODEL = os.getenv("CLAUDE_MODEL", "claude-3-5-sonnet-20241022")
+CLAUDE_MODEL = os.getenv("CLAUDE_MODEL", "glm-4.5-air")
 CLAUDE_MAX_TOKENS = 8192
 
 # ============================================================================
