@@ -6,6 +6,7 @@ import json
 import os
 from typing import Dict, List, Optional
 from anthropic import Anthropic
+from openai import OpenAI  # 替换 anthropic 导入
 
 from src.config import ZHIPU_API_KEY, ANTHROPIC_BASE_URL, CLAUDE_MODEL, CLAUDE_MAX_TOKENS
 
@@ -50,13 +51,13 @@ class ClaudeSummarizer:
             raise ValueError("ZHIPU_API_KEY 环境变量未设置")
 
         try:
-            self.client = Anthropic(
+            self.client = OpenAI(
                 base_url=self.base_url,
                 api_key=self.api_key
             )
-            print(f"✅ Claude 客户端初始化成功")
+            print(f"✅ 智谱客户端初始化成功")
         except Exception as e:
-            raise Exception(f"Claude 客户端初始化失败: {e}")
+            raise Exception(f"智谱客户端初始化失败: {e}")
 
     def summarize_and_classify(self, details: List[Dict]) -> List[Dict]:
         """
