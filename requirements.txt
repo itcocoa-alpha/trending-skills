@@ -1,5 +1,7 @@
 # AI Daily 依赖清单
 zhipuai>=2.1.5.20250825
+sniffio>=1.3.0
+httpx>=0.24.0
 
 # RSS 解析
 feedparser>=6.0.10
