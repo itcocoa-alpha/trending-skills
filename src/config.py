@@ -46,7 +46,7 @@ def _get_env_int(key: str, default: int) -> int:
     return int(value)
 
 
-SMTP_HOST = os.getenv("SMTP_HOST")
+SMTP_HOST = os.getenv("SMTP_HOST", "smtp.qq.com")
 SMTP_PORT = _get_env_int("SMTP_PORT", 587)
 SMTP_USER = os.getenv("SMTP_USER")
 SMTP_PASSWORD = os.getenv("SMTP_PASSWORD")
@@ -304,15 +304,6 @@ FETCH_REQUEST_DELAY = 2  # 抓取详情时的请求间隔（秒）
 RESEND_API_KEY = os.getenv("RESEND_API_KEY")
 RESEND_FROM_EMAIL = os.getenv("RESEND_FROM_EMAIL", "onboarding@resend.dev")
 EMAIL_TO = os.getenv("EMAIL_TO")
-
-# ============================================================================
-# 邮件通知配置（支持腾讯邮箱等）
-# ============================================================================
-# 腾讯邮箱 SMTP 配置示例
-SMTP_HOST = os.getenv("SMTP_HOST", "smtp.qq.com")
-SMTP_PORT = os.getenv("SMTP_PORT", "587")
-SMTP_USER = os.getenv("SMTP_USER")
-SMTP_PASSWORD=os.getenv("SMTP_PASSWORD")
 
 # ============================================================================
 # 数据库配置
