@@ -5,6 +5,7 @@ Claude Summarizer - AI 总结和分类技能
 import json
 from typing import Dict, List, Optional
 from zhipuai import ZhipuAI
+import time  # 增加 time 模块
 
 from src.config import ZHIPU_API_KEY, ANTHROPIC_BASE_URL, CLAUDE_MODEL, CLAUDE_MAX_TOKENS
 
@@ -86,31 +87,43 @@ class ClaudeSummarizer:
         # 构建批量分析 Prompt
         prompt = self._build_batch_prompt(details)
 
-        try:
-            response = self.client.chat.completions.create(
-                model=self.model,
-                max_tokens=self.max_tokens,
-                temperature=0.3,
-                messages=[
-                    {
-                        "role": "user",
-                        "content": prompt
-                    }
-                ]
-            )
+        # --- 优化点：增加重试逻辑 ---
+        max_retries = 3
+        retry_delay = 5  # 失败后等待 5 秒再重试
 
-            result_text = response.choices[0].message.content
-            print(f"✅ 智谱 响应成功")
+        for attempt in range(max_retries):
 
-            # 解析结果
-            results = self._parse_batch_response(result_text, details)
+            try:
+                # 显式增加 timeout 参数（单位：秒）
+                response = self.client.chat.completions.create(
+                    model=self.model,
+                    max_tokens=self.max_tokens,
+                    temperature=0.3,
+                    timeout=60,  # 这里的 timeout 很重要
+                    messages=[
+                        {
+                            "role": "user",
+                            "content": prompt
+                        }
+                    ]
+                )
 
-            return results
+                result_text = response.choices[0].message.content
+                print(f"✅ 智谱 响应成功 (尝试第 {attempt + 1} 次)")
 
-        except Exception as e:
-            print(f"❌ 智谱 API 调用失败: {e}")
-            # 返回基本信息作为降级方案
-            return self._fallback_summaries(details)
+                # 解析结果
+                results = self._parse_batch_response(result_text, details)
+
+                return results
+
+            except Exception as e:
+                print(f"⚠️ 第 {attempt + 1} 次尝试失败: {e}")
+                if attempt < max_retries - 1:
+                    print(f"   将在 {retry_delay} 秒后重试...")
+                    time.sleep(retry_delay)
+                else:
+                    print(f"❌ 智谱 API 最终调用失败，进入降级流程")
+                    return self._fallback_summaries(details)
 
     def _build_batch_prompt(self, details: List[Dict]) -> str:
         """
