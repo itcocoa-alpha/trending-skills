@@ -2,7 +2,7 @@ name: Skills Trending Daily
 
 on:
   schedule:
-    - cron: '0 2 * * *'  # Runs daily at 02:00 UTC (10:00 Beijing)
+    - cron: '0 0 * * *'  # Runs daily at 02:00 UTC (10:00 Beijing)
 
   workflow_dispatch:
 
