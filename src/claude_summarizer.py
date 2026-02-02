@@ -82,8 +82,26 @@ class ClaudeSummarizer:
         if not details:
             return []
 
-        print(f"🤖 正在调用 智谱 分析 {len(details)} 个技能...")
+        batch_size = 5
+        total = len(details)
+        total_batches = (total + batch_size - 1) // batch_size
+        print(f"🤖 正在调用 智谱 分析 {total} 个技能（每批 {batch_size} 个）...")
 
+        all_results: List[Dict] = []
+        for batch_index in range(total_batches):
+            start = batch_index * batch_size
+            end = min(start + batch_size, total)
+            batch_details = details[start:end]
+            print(f"   批次 {batch_index + 1}/{total_batches}: {len(batch_details)} 个")
+
+            batch_results = self._summarize_batch(batch_details)
+            batch_results = self._fill_missing_results(batch_results, batch_details)
+            all_results.extend(batch_results)
+
+        return all_results
+
+    def _summarize_batch(self, details: List[Dict]) -> List[Dict]:
+        """单批次调用智谱分析"""
         # 构建批量分析 Prompt
         prompt = self._build_batch_prompt(details)
 
@@ -92,7 +110,6 @@ class ClaudeSummarizer:
         retry_delay = 5  # 失败后等待 5 秒再重试
 
         for attempt in range(max_retries):
-
             try:
                 # 显式增加 timeout 参数（单位：秒）
                 response = self.client.chat.completions.create(
@@ -112,9 +129,7 @@ class ClaudeSummarizer:
                 print(f"✅ 智谱 响应成功 (尝试第 {attempt + 1} 次)")
 
                 # 解析结果
-                results = self._parse_batch_response(result_text, details)
-
-                return results
+                return self._parse_batch_response(result_text, details)
 
             except Exception as e:
                 print(f"⚠️ 第 {attempt + 1} 次尝试失败: {e}")
@@ -124,6 +139,16 @@ class ClaudeSummarizer:
                 else:
                     print(f"❌ 智谱 API 最终调用失败，进入降级流程")
                     return self._fallback_summaries(details)
+
+        return self._fallback_summaries(details)
+
+    def _fill_missing_results(self, results: List[Dict], details: List[Dict]) -> List[Dict]:
+        """确保每个技能都有结果，缺失则回退填充"""
+        existing_names = {r.get("name") for r in results if isinstance(r, dict)}
+        missing_details = [d for d in details if d.get("name") not in existing_names]
+        if not missing_details:
+            return results
+        return results + self._fallback_summaries(missing_details)
 
     def _build_batch_prompt(self, details: List[Dict]) -> str:
         """
