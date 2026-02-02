@@ -238,13 +238,25 @@ sqlite3 data/trends.db "SELECT name, summary, category FROM skills_details WHERE
 
 ## GitHub Actions
 
-### 自动化部署
+### GitHub Actions
 
 1. Fork 本仓库
 2. 在 GitHub Settings > Secrets and variables > Actions 中添加：
-   - `ZHIPU_API_KEY`
-   - `RESEND_API_KEY`
-   - `EMAIL_TO`（可选）
+   
+   #### 选项 1: 腾讯邮箱配置
+   - `SMTP_HOST`: `smtp.qq.com`
+   - `SMTP_PORT`: `587`
+   - `SMTP_USER`: 你的腾讯邮箱地址
+   - `SMTP_PASSWORD`: 腾讯邮箱授权码
+   - `EMAIL_TO`: 收件人邮箱（支持逗号分隔多个）
+   
+   #### 选项 2: Resend 配置
+   - `RESEND_API_KEY`: Resend API Key
+   - `EMAIL_TO`: 收件人邮箱（支持逗号分隔多个）
+   - `RESEND_FROM_EMAIL`: 发件人邮箱（可选）
+   
+   注意：SMTP 配置优先于 Resend
+
 3. 启用 Actions
 
 ### 定时执行
