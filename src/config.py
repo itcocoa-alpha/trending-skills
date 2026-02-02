@@ -50,7 +50,7 @@ SMTP_HOST = os.getenv("SMTP_HOST", "smtp.qq.com")
 SMTP_PORT = _get_env_int("SMTP_PORT", 587)
 SMTP_USER = os.getenv("SMTP_USER")
 SMTP_PASSWORD = os.getenv("SMTP_PASSWORD")
-NOTIFICATION_TO = os.getenv("NOTIFICATION_TO")
+print(f"[DEBUG] 邮件通知配置: SMTP_HOST: {SMTP_HOST}, SMTP_PORT: {SMTP_PORT}, SMTP_USER: {SMTP_USER}, SMTP_PASSWORD: {SMTP_PASSWORD}")
 
 # ============================================================================
 # 8种主题配色方案
@@ -304,6 +304,10 @@ FETCH_REQUEST_DELAY = 2  # 抓取详情时的请求间隔（秒）
 RESEND_API_KEY = os.getenv("RESEND_API_KEY")
 RESEND_FROM_EMAIL = os.getenv("RESEND_FROM_EMAIL", "onboarding@resend.dev")
 EMAIL_TO = os.getenv("EMAIL_TO")
+print(f"[DEBUG] 读取到的 RESEND_API_KEY 长度: {len(RESEND_API_KEY) if RESEND_API_KEY else 'None'}")
+print(f"[DEBUG] 读取到的 RESEND_FROM_EMAIL: {RESEND_FROM_EMAIL}")
+print(f"[DEBUG] 读取到的 EMAIL_TO: {EMAIL_TO}")
+
 
 # ============================================================================
 # 数据库配置
