@@ -7,6 +7,7 @@ import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from email.header import Header
+from email.utils import parseaddr, formataddr
 from typing import Dict, List, Union, Optional
 
 
@@ -57,12 +58,22 @@ class SMTPSender:
         # 过滤空值和无效邮箱
         valid_recipients = []
         for email in recipients:
-            if email and '@' in email and '.' in email:
-                valid_recipients.append(email)
+            _, addr = parseaddr(email)
+            if addr and '@' in addr and '.' in addr:
+                valid_recipients.append(addr)
             else:
                 print(f"⚠️  跳过无效邮箱格式: {email}")
 
         return valid_recipients
+
+    def _format_from_header(self, from_email: str) -> Optional[str]:
+        """格式化 From 头部，确保符合 RFC 格式"""
+        name, addr = parseaddr(from_email)
+        if not addr or '@' not in addr or '.' not in addr:
+            return None
+        if name:
+            return formataddr((name, addr), charset='utf-8')
+        return addr
 
     def send_email(
         self,
@@ -104,8 +115,16 @@ class SMTPSender:
 
             # 创建邮件
             msg = MIMEMultipart('alternative')
-            msg['From'] = Header(from_email, 'utf-8')
-            msg['To'] = Header(", ".join(recipients), 'utf-8')
+            formatted_from = self._format_from_header(from_email)
+            if not formatted_from:
+                return {
+                    "success": False,
+                    "message": "无效的发件人邮箱",
+                    "recipients": recipients
+                }
+            _, from_addr = parseaddr(from_email)
+            msg['From'] = formatted_from
+            msg['To'] = ", ".join(recipients)
             msg['Subject'] = Header(subject, 'utf-8')
 
             # 添加 HTML 内容
@@ -118,7 +137,7 @@ class SMTPSender:
                 server.login(self.smtp_user, self.smtp_password)
                 
                 # 发送邮件
-                server.send_message(msg)
+                server.send_message(msg, from_addr=from_addr, to_addrs=recipients)
 
             print(f"✅ SMTP 邮件发送成功!")
             print(f"   收件人: {len(recipients)} 个")
@@ -175,8 +194,12 @@ class SMTPSender:
             try:
                 # 创建邮件
                 msg = MIMEMultipart('alternative')
-                msg['From'] = Header(from_email, 'utf-8')
-                msg['To'] = Header(email, 'utf-8')
+                formatted_from = self._format_from_header(from_email)
+                if not formatted_from:
+                    raise ValueError("无效的发件人邮箱")
+                _, from_addr = parseaddr(from_email)
+                msg['From'] = formatted_from
+                msg['To'] = email
                 msg['Subject'] = Header(subject, 'utf-8')
 
                 # 添加 HTML 内容
@@ -189,7 +212,7 @@ class SMTPSender:
                     server.login(self.smtp_user, self.smtp_password)
                     
                     # 发送邮件
-                    server.send_message(msg)
+                    server.send_message(msg, from_addr=from_addr, to_addrs=[email])
 
                 result = {
                     "success": True,
